@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'fuchivola.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DB_ENGINE = config('DB_ENGINE', default='sqlite3')
+DB_ENGINE = config('DB_ENGINE', default='sqlite3' if DEBUG else 'postgresql')
 if DB_ENGINE in ('postgresql', 'django.db.backends.postgresql'):
     DATABASES = {
         'default': {
@@ -89,6 +89,10 @@ if DB_ENGINE in ('postgresql', 'django.db.backends.postgresql'):
         }
     }
 elif DB_ENGINE in ('sqlite3', 'django.db.backends.sqlite3'):
+    if not DEBUG:
+        raise RuntimeError(
+            'SQLite no es compatible en producción. Configure DB_ENGINE=postgresql y las variables DB_* en Vercel.'
+        )
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
