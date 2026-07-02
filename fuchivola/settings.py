@@ -146,3 +146,18 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Use Azure Blob Storage for uploaded media in production (DEBUG=False).
+if not DEBUG:
+    AZURE_ACCOUNT_NAME = config('AZURE_STORAGE_ACCOUNT_NAME', default=None)
+    AZURE_ACCOUNT_KEY = config('AZURE_STORAGE_ACCOUNT_KEY', default=None)
+    AZURE_CONTAINER = config('AZURE_CONTAINER', default='media')
+
+    if not AZURE_ACCOUNT_NAME or not AZURE_ACCOUNT_KEY:
+        raise RuntimeError(
+            'AZURE_STORAGE_ACCOUNT_NAME and AZURE_STORAGE_ACCOUNT_KEY must be set in production.'
+        )
+
+    DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
+    MEDIA_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_CONTAINER}/'
+    # When using Azure storage backend Django will not write to local MEDIA_ROOT.
