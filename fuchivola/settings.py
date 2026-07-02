@@ -76,7 +76,8 @@ WSGI_APPLICATION = 'fuchivola.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-if config('DB_ENGINE', default='sqlite3') == 'postgresql':
+DB_ENGINE = config('DB_ENGINE', default='sqlite3')
+if DB_ENGINE in ('postgresql', 'django.db.backends.postgresql'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -87,13 +88,18 @@ if config('DB_ENGINE', default='sqlite3') == 'postgresql':
             'PORT': config('DB_PORT', default='5432'),
         }
     }
-else:
+elif DB_ENGINE in ('sqlite3', 'django.db.backends.sqlite3'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+else:
+    raise ValueError(
+        'DB_ENGINE debe ser sqlite3, django.db.backends.sqlite3, '
+        'postgresql o django.db.backends.postgresql'
+    )
 
 
 # Password validation
