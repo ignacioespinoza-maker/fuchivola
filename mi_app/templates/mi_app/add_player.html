@@ -1,0 +1,14 @@
+{% extends 'mi_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card card-glow p-4 mx-auto" style="max-width: 600px;">
+    <h2 class="mb-4">Agregar nuevo jugador</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ player_form.as_p }}
+        <button type="submit" class="btn btn-warning">Guardar jugador</button>
+        <a href="{% url 'index' %}" class="btn btn-secondary ms-2">Volver</a>
+    </form>
+</div>
+{% endblock %}

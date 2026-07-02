@@ -1,0 +1,122 @@
+{% extends 'mi_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="hero p-4 rounded-4 shadow-lg">
+    <div class="row align-items-center gy-4">
+        <div class="col-lg-6">
+            <h1 class="display-5 fw-bold">Organiza tu partido de fútbol</h1>
+            <p class="lead">Elige el formato, agrega jugadores, sortealos al equipo 1 o 2 y dale color a tus camisetas.</p>
+            <div class="d-flex gap-3 flex-wrap">
+                <a href="{% url 'add_player' %}" class="btn btn-warning btn-lg text-dark">Agregar jugador</a>
+                <a href="{% url 'tier_list' %}" class="btn btn-outline-light btn-lg">Ir a Tier List</a>
+            </div>
+        </div>
+        <div class="col-lg-6 text-center">
+            <img src="{% static 'img/logo.webp' %}" class="img-fluid rounded-4 shadow" alt="Fuchivola Logo" style="width: 300px; height: 300px; object-fit: contain;" />
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 gy-4">
+    <div class="col-lg-5">
+        <div class="card card-glow p-4" id="registro">
+            <h3 class="mb-3">Registrar jugador</h3>
+            {% if player_form.errors %}
+                <div class="alert alert-danger">Verifica los datos del jugador.</div>
+            {% endif %}
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ player_form.as_p }}
+                <button name="player_submit" type="submit" class="btn btn-warning fw-bold">Ingresar jugador</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card card-glow p-4">
+            <h3 class="mb-3">Crear partido y elegir jugadores</h3>
+            {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Formato de partido</label>
+                        <select class="form-select" name="formato">
+                            <option value="">Seleccionar</option>
+                            <option value="7vs7">7 vs 7</option>
+                            <option value="8vs8">8 vs 8</option>
+                            <option value="9vs9">9 vs 9</option>
+                            <option value="10vs10">10 vs 10</option>
+                            <option value="11vs11">11 vs 11</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Color equipo 1</label>
+                        <select class="form-select" name="equipo1_color">
+                            <option value="blanco">Blanco</option>
+                            <option value="negro">Negro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Color equipo 2</label>
+                        <select class="form-select" name="equipo2_color">
+                            <option value="negro">Negro</option>
+                            <option value="blanco">Blanco</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Seleccionar jugadores</label>
+                        <div class="row row-cols-1 row-cols-md-2 g-3">
+                            {% for player in players %}
+                                <div class="col">
+                                    <label class="player-card p-3 d-flex gap-3 align-items-center rounded-4">
+                                        <input class="form-check-input mt-0" type="checkbox" name="jugadores" value="{{ player.id }}">
+                                        {% if player.foto %}
+                                        <img src="{{ player.foto.url }}" class="rounded-circle" width="60" height="60" alt="Foto jugador">
+                                    {% else %}
+                                        <img src="https://images.unsplash.com/photo-1516822003754-cca485356ecb?auto=format&fit=crop&w=120&q=80" class="rounded-circle" width="60" height="60" alt="Foto jugador">
+                                    {% endif %}
+                                        <div>
+                                            <strong>{{ player.apodo|default:player.nombre }}</strong><br>
+                                            <small>{{ player.nombre }}</small>
+                                        </div>
+                                    </label>
+                                </div>
+                            {% empty %}
+                                <div class="col"><p>No hay jugadores registrados aún.</p></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <button name="match_submit" type="submit" class="btn btn-success mt-4">Crear partido y sortear</button>
+                <button type="reset" class="btn btn-outline-warning mt-4 ms-2">Limpiar selección</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card card-glow p-4">
+            <h3 class="mb-3">Jugadores registrados</h3>
+            <div class="row row-cols-1 row-cols-md-3 g-3">
+                {% for player in players %}
+                    <div class="col">
+                        <div class="player-card p-3 rounded-4 position-relative">
+                            {% if player.foto %}
+                                <img src="{{ player.foto.url }}" class="player-photo mb-3" alt="Jugador">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1516822003754-cca485356ecb?auto=format&fit=crop&w=300&q=80" class="player-photo mb-3" alt="Jugador">
+                            {% endif %}
+                            <h5>{{ player.apodo|default:player.nombre }}</h5>
+                            <p class="mb-3">{{ player.nombre }}</p>
+                            <a href="{% url 'delete_player' player.id %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de eliminar a este jugador?')">Eliminar</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'mi_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card card-glow p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>Tier List</h1>
+            <p>Selecciona el último partido jugado para mover a los jugadores a la categoría correcta.</p>
+        </div>
+        <a href="{% url 'index' %}" class="btn btn-outline-light">Volver al inicio</a>
+    </div>
+
+    <form method="get" class="mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-8">
+                <label class="form-label">Último partido</label>
+                <select name="match_id" class="form-select">
+                    <option value="">Selecciona un partido</option>
+                    {% for match in matches %}
+                        <option value="{{ match.id }}" {% if selected_match and selected_match.id == match.id %}selected{% endif %}>
+                            {{ match.formato }} - {{ match.fecha|date:'d/m/Y H:i' }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-warning w-100">Cargar partido</button>
+            </div>
+        </div>
+    </form>
+
+    {% if selected_match %}
+        {% if message %}<div class="alert alert-success">{{ message }}</div>{% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="match_id" value="{{ selected_match.id }}" />
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for item in player_entries %}
+                    {% with player=item.player category=item.category %}
+                    <div class="col">
+                        <div class="player-card p-3 rounded-4 d-flex gap-3 align-items-center">
+                            {% if player.foto %}
+                                <img src="{{ player.foto.url }}" width="90" height="90" class="rounded-circle" alt="Jugador">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1516822003754-cca485356ecb?auto=format&fit=crop&w=120&q=80" width="90" height="90" class="rounded-circle" alt="Jugador">
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <h5>{{ player.apodo|default:player.nombre }}</h5>
+                                <p class="mb-2">{{ player.nombre }}</p>
+                                <select name="category_{{ player.id }}" class="form-select">
+                                    <option value="crack" {% if category == 'crack' %}selected{% endif %}>Crack</option>
+                                    <option value="bueno" {% if category == 'bueno' %}selected{% endif %}>Bueno</option>
+                                    <option value="puede_ser_mejor" {% if category == 'puede_ser_mejor' %}selected{% endif %}>Puede ser mejor</option>
+                                    <option value="tronco" {% if category == 'tronco' %}selected{% endif %}>Tronco</option>
+                                    <option value="lesionado" {% if category == 'lesionado' %}selected{% endif %}>Lesionado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-success mt-4">Guardar tier list</button>
+        </form>
+    {% else %}
+        <div class="alert alert-info">Selecciona un partido para ver y editar la tier list de sus jugadores.</div>
+    {% endif %}
+</div>
+{% endblock %}

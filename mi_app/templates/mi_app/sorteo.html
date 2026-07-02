@@ -1,0 +1,63 @@
+{% extends 'mi_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card card-glow p-4">
+    <h1 class="mb-3">Sorteo de equipos</h1>
+    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+    {% if match %}
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="p-4 team-banner rounded-4" style="background: rgba(255,255,255,0.08); border-left: 5px solid #fff;">
+                <h3 class="text-white">Equipo 1</h3>
+                <p class="text-muted">Color: {{ match.equipo1_color|capfirst }}</p>
+                <div class="list-group">
+                    {% for player in team1 %}
+                        <div class="list-group-item bg-transparent border-0 text-white d-flex align-items-center gap-3">
+                            {% if player.foto %}
+                                <img src="{{ player.foto.url }}" width="60" height="60" class="rounded-circle" alt="Jugador">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1516822003754-cca485356ecb?auto=format&fit=crop&w=80&q=80" width="60" height="60" class="rounded-circle" alt="Jugador">
+                            {% endif %}
+                            <div>
+                                <strong>{{ player.apodo|default:player.nombre }}</strong><br>
+                                <small>{{ player.nombre }}</small>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-white">No hay jugadores asignados al equipo 1.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="p-4 team-banner rounded-4" style="background: rgba(0,0,0,0.7); border-left: 5px solid #fff;">
+                <h3 class="text-white">Equipo 2</h3>
+                <p class="text-muted">Color: {{ match.equipo2_color|capfirst }}</p>
+                <div class="list-group">
+                    {% for player in team2 %}
+                        <div class="list-group-item bg-transparent border-0 text-white d-flex align-items-center gap-3">
+                            {% if player.foto %}
+                                <img src="{{ player.foto.url }}" width="60" height="60" class="rounded-circle" alt="Jugador">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1516822003754-cca485356ecb?auto=format&fit=crop&w=80&q=80" width="60" height="60" class="rounded-circle" alt="Jugador">
+                            {% endif %}
+                            <div>
+                                <strong>{{ player.apodo|default:player.nombre }}</strong><br>
+                                <small>{{ player.nombre }}</small>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="text-white">No hay jugadores asignados al equipo 2.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a href="{% url 'tier_list' %}?match_id={{ match.id }}" class="btn btn-outline-warning">Crear tier list para este partido</a>
+        <a href="{% url 'index' %}" class="btn btn-secondary">Volver al inicio</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
